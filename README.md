@@ -57,8 +57,8 @@ def create_and_populate_database():
     conn = sqlite3.connect('day_data.db')
     cursor = conn.cursor()
 
-    # Create tables
-    cursor.execute('''
+    
+cursor.execute('''
         CREATE TABLE IF NOT EXISTS tasks (
             task_id INTEGER PRIMARY KEY AUTOINCREMENT,
             task_name TEXT NOT NULL,
@@ -67,7 +67,7 @@ def create_and_populate_database():
         )
     ''')
 
-    cursor.execute('''
+cursor.execute('''
         CREATE TABLE IF NOT EXISTS subtasks (
             subtask_id INTEGER PRIMARY KEY AUTOINCREMENT,
             task_id INTEGER NOT NULL,
@@ -79,11 +79,11 @@ def create_and_populate_database():
 
 
     
-    # Need to get the task_ids for the subtasks
-    cursor.execute("SELECT task_id FROM tasks WHERE task_name IN ('Plan Project Structure', 'Set up Development Environment') ORDER BY task_id")
+    
+cursor.execute("SELECT task_id FROM tasks WHERE task_name IN ('Plan Project Structure', 'Set up Development Environment') ORDER BY task_id")
     task_ids_day2 = [row[0] for row in cursor.fetchall()]
 
-    subtasks_day2_with_ids = []
+subtasks_day2_with_ids = []
     for i, task_id in enumerate(task_ids_day2):
         if i == 0: # Plan Project Structure
             subtasks_day2_with_ids.append((task_id, 'Create project directory', False))
@@ -92,24 +92,23 @@ def create_and_populate_database():
             subtasks_day2_with_ids.append((task_id, 'Install Python', False))
             subtasks_day2_with_ids.append((task_id, 'Install VS Code', False))
             subtasks_day2_with_ids.append((task_id, 'Install Monaco Editor integration', False))
-
     cursor.executemany('INSERT INTO subtasks (task_id, subtask_name, completed) VALUES (?, ?, ?)', subtasks_day2_with_ids)
     conn.commit()
 
 
-    # Load Day 3 data
-    tasks_day3 = [
+    
+tasks_day3 = [
         ('Implement Task Management API', 'Create endpoints for CRUD operations on tasks.', '2023-10-27'),
         ('Develop User Interface', 'Build the frontend using HTML, CSS, and JavaScript.', '2023-10-27')
     ]
    
-    cursor.executemany('INSERT INTO tasks (task_name, description, due_date) VALUES (?, ?, ?)', tasks_day3)
+cursor.executemany('INSERT INTO tasks (task_name, description, due_date) VALUES (?, ?, ?)', tasks_day3)
     conn.commit()
 
-    cursor.execute("SELECT task_id FROM tasks WHERE task_name IN ('Implement Task Management API', 'Develop User Interface') ORDER BY task_id")
+cursor.execute("SELECT task_id FROM tasks WHERE task_name IN ('Implement Task Management API', 'Develop User Interface') ORDER BY task_id")
     task_ids_day3 = [row[0] for row in cursor.fetchall()]
 
-    subtasks_day3_with_ids = []
+subtasks_day3_with_ids = []
     for i, task_id in enumerate(task_ids_day3):
         if i == 0: # Implement Task Management API
             subtasks_day3_with_ids.append((task_id, 'Design API endpoints', False))
@@ -119,15 +118,15 @@ def create_and_populate_database():
             subtasks_day3_with_ids.append((task_id, 'Style with CSS', False))
             subtasks_day3_with_ids.append((task_id, 'Add JavaScript interactivity', False))
 
-    cursor.executemany('INSERT INTO subtasks (task_id, subtask_name, completed) VALUES (?, ?, ?)', subtasks_day3_with_ids)
+cursor.executemany('INSERT INTO subtasks (task_id, subtask_name, completed) VALUES (?, ?, ?)', subtasks_day3_with_ids)
     conn.commit()
 
-    conn.close()
+conn.close()
 
 if __name__ == '__main__':
     create_and_populate_database()
 
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def run_pipeline():
     scripts = [
@@ -136,7 +135,7 @@ def run_pipeline():
         "python script3.py"
     ]
 
-    for script in scripts:
+for script in scripts:
         logging.info(f"Running script: {script}")
         try:
             result = subprocess.run(script, shell=True, check=True, capture_output=True, text=True)
@@ -160,16 +159,13 @@ def run_pipeline():
 if __name__ == "__main__":
     run_pipeline()
 
-    
-
-
 
 def check_database_for_problems(db_path="your_database.db"):
     """
     Checks a SQLite database for common problems: missing fields, duplicate entries,
     and implausible prices.
 
-    Args:
+Args:
         db_path (str): The path to the SQLite database file.
     """
     report = {
@@ -178,28 +174,23 @@ def check_database_for_problems(db_path="your_database.db"):
         "implausible_prices": defaultdict(list),
     }
 
-    try:
+ try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        # --- Check for missing fields ---
-        # This is a simplified check. In a real-world scenario, you'd have
-        # a predefined schema or know which fields are mandatory.
-        # For demonstration, we'll check if a 'name' and 'price' field exist
-        # in a hypothetical 'products' table.
-        try:
-            cursor.execute("PRAGMA table_info(products);")
-            columns = [col[1] for col in cursor.fetchall()]
-            if 'name' not in columns:
-                report["missing_fields"]["products"].append("The 'name' field is missing.")
+      
+  try:
+        cursor.execute("PRAGMA table_info(products);")
+        columns = [col[1] for col in cursor.fetchall()]
+        if 'name' not in columns:
+            report["missing_fields"]["products"].append("The 'name' field is missing.")
             if 'price' not in columns:
                 report["missing_fields"]["products"].append("The 'price' field is missing.")
         except sqlite3.OperationalError:
             report["missing_fields"]["products"].append("The 'products' table does not exist.")
 
-        # --- Check for duplicate entries ---
-        # Assuming 'name' is a unique identifier for products.
-        try:
+        
+try:
             cursor.execute("SELECT name, COUNT(*) FROM products GROUP BY name HAVING COUNT(*) > 1;")
             duplicates = cursor.fetchall()
             for name, count in duplicates:
@@ -207,27 +198,21 @@ def check_database_for_problems(db_path="your_database.db"):
         except sqlite3.OperationalError:
             pass # Table might not exist or 'name' column might be missing
 
-        # --- Check for implausible prices ---
-        # Assuming prices should be non-negative and not excessively high (e.g., > 1,000,000)
-        try:
+      
+  try:
             cursor.execute("SELECT rowid, name, price FROM products WHERE price < 0 OR price > 1000000;")
             implausible_prices = cursor.fetchall()
             for rowid, name, price in implausible_prices:
                 report["implausible_prices"]["products"].append(f"Product '{name}' (ID: {rowid}) has an implausible price: {price}.")
         except sqlite3.OperationalError:
             pass # Table might not exist or 'price' column might be missing
-
         conn.close()
-
     except sqlite3.Error as e:
         print(f"Database error: {e}")
         return
 
-    # --- Print the report ---
-    print("--- Database Health Report ---")
-
+ print("--- Database Health Report ---")
     has_issues = False
-
     if report["missing_fields"]:
         has_issues = True
         print("\n[Missing Fields]")
@@ -235,7 +220,6 @@ def check_database_for_problems(db_path="your_database.db"):
             print(f"  Table '{table}':")
             for issue in issues:
                 print(f"    - {issue}")
-
     if report["duplicate_entries"]:
         has_issues = True
         print("\n[Duplicate Entries]")
@@ -243,7 +227,6 @@ def check_database_for_problems(db_path="your_database.db"):
             print(f"  Table '{table}':")
             for issue in issues:
                 print(f"    - {issue}")
-
     if report["implausible_prices"]:
         has_issues = True
         print("\n[Implausible Prices]")
@@ -251,14 +234,11 @@ def check_database_for_problems(db_path="your_database.db"):
             print(f"  Table '{table}':")
             for issue in issues:
                 print(f"    - {issue}")
-
     if not has_issues:
         print("\nNo issues found.")
-
     print("\n--- End of Report ---")
 
 if __name__ == "__main__":
-    # Create a dummy database for testing if it doesn't exist
     db_file = "your_database.db"
     try:
         conn = sqlite3.connect(db_file)
@@ -285,8 +265,7 @@ if __name__ == "__main__":
     except sqlite3.Error as e:
         print(f"Error creating dummy database: {e}")
 
-    # Run the check
-    check_database_for_problems(db_path=db_file)
+check_database_for_problems(db_path=db_file)
 
 
 
