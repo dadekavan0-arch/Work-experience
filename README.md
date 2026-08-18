@@ -33,25 +33,12 @@ else:
     print(f"Instrument with ticker '{ticker_to_find}' not found.")
 
 
-# Define the tickers for the 5 instruments
 tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
-
-# Fetch recent price data
 data = yf.download(tickers, period="1mo", interval="1d")
-
-# Extract the 'Close' prices
 close_prices = data['Close']
-
-# Save the data to a CSV file
 close_prices.to_csv("recent_prices.csv")
-
 print("Recent price data saved to recent_prices.csv")
-
-# Display the first few rows of the data
 print(close_prices.head())
-
-
-
 
 def create_and_populate_database():
     conn = sqlite3.connect('day_data.db')
@@ -77,51 +64,6 @@ cursor.execute('''
         )
     ''')
 
-
-    
-    
-cursor.execute("SELECT task_id FROM tasks WHERE task_name IN ('Plan Project Structure', 'Set up Development Environment') ORDER BY task_id")
-    task_ids_day2 = [row[0] for row in cursor.fetchall()]
-
-subtasks_day2_with_ids = []
-    for i, task_id in enumerate(task_ids_day2):
-        if i == 0: # Plan Project Structure
-            subtasks_day2_with_ids.append((task_id, 'Create project directory', False))
-            subtasks_day2_with_ids.append((task_id, 'Define database schema', False))
-        elif i == 1: # Set up Development Environment
-            subtasks_day2_with_ids.append((task_id, 'Install Python', False))
-            subtasks_day2_with_ids.append((task_id, 'Install VS Code', False))
-            subtasks_day2_with_ids.append((task_id, 'Install Monaco Editor integration', False))
-    cursor.executemany('INSERT INTO subtasks (task_id, subtask_name, completed) VALUES (?, ?, ?)', subtasks_day2_with_ids)
-    conn.commit()
-
-
-    
-tasks_day3 = [
-        ('Implement Task Management API', 'Create endpoints for CRUD operations on tasks.', '2023-10-27'),
-        ('Develop User Interface', 'Build the frontend using HTML, CSS, and JavaScript.', '2023-10-27')
-    ]
-   
-cursor.executemany('INSERT INTO tasks (task_name, description, due_date) VALUES (?, ?, ?)', tasks_day3)
-    conn.commit()
-
-cursor.execute("SELECT task_id FROM tasks WHERE task_name IN ('Implement Task Management API', 'Develop User Interface') ORDER BY task_id")
-    task_ids_day3 = [row[0] for row in cursor.fetchall()]
-
-subtasks_day3_with_ids = []
-    for i, task_id in enumerate(task_ids_day3):
-        if i == 0: # Implement Task Management API
-            subtasks_day3_with_ids.append((task_id, 'Design API endpoints', False))
-            subtasks_day3_with_ids.append((task_id, 'Write Python backend code', False))
-        elif i == 1: # Develop User Interface
-            subtasks_day3_with_ids.append((task_id, 'Create HTML structure', False))
-            subtasks_day3_with_ids.append((task_id, 'Style with CSS', False))
-            subtasks_day3_with_ids.append((task_id, 'Add JavaScript interactivity', False))
-
-cursor.executemany('INSERT INTO subtasks (task_id, subtask_name, completed) VALUES (?, ?, ?)', subtasks_day3_with_ids)
-    conn.commit()
-
-conn.close()
 
 if __name__ == '__main__':
     create_and_populate_database()
